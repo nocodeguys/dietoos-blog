@@ -1,0 +1,190 @@
+---
+import '@/styles/global.css';
+import '@/styles/fonts.css';
+import '@/styles/blog.css';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  category: string;
+  tags: string[];
+  author: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  ogImage?: string;
+  readingTime?: number;
+  slug: string;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  category,
+  tags,
+  author,
+  heroImage,
+  heroImageAlt,
+  ogImage,
+  readingTime,
+  slug
+} = Astro.props;
+
+const canonicalURL = new URL(`/blog/${slug}`, Astro.site);
+const defaultOgImage = new URL('og-image.png', Astro.site);
+const finalOgImage = ogImage ? new URL(ogImage, Astro.site) : (heroImage ? new URL(heroImage, Astro.site) : defaultOgImage);
+
+// Structured Data for Blog Post
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description: description,
+  image: finalOgImage.toString(),
+  author: {
+    "@type": "Person",
+    name: author,
+    url: `${Astro.site || 'https://localhost:4321'}about`
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Dietoos Blog",
+    url: (Astro.site || 'https://localhost:4321').toString(),
+    logo: {
+      "@type": "ImageObject",
+      url: new URL('og-image.png', Astro.site).toString()
+    }
+  },
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate || pubDate).toISOString(),
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": canonicalURL.toString()
+  },
+  about: {
+    "@type": "Thing",
+    name: category
+  },
+  keywords: tags.join(", "),
+  url: canonicalURL.toString(),
+  ...(readingTime && {
+    timeRequired: `PT${readingTime}M`,
+    wordCount: readingTime * 200 // Estimate based on 200 words per minute
+  })
+};
+
+// Generate breadcrumb structured data
+const breadcrumbStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: (Astro.site || 'https://localhost:4321').toString()
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Blog",
+      item: new URL('/blog', Astro.site).toString()
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: title,
+      item: canonicalURL.toString()
+    }
+  ]
+};
+---
+
+<!-- Base Meta Tags -->
+<meta charset="utf-8" />
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+<meta name="googlebot" content="index, follow" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- DNS Prefetch for Performance -->
+<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+<link rel="dns-prefetch" href="//www.google-analytics.com" />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Favicon and Icons -->
+<link rel="shortcut icon" type="image/svg+xml" href={`${Astro.site}favicon.svg`} />
+<link rel="apple-touch-icon" sizes="180x180" href={`${Astro.site}apple-touch-icon.png`} />
+
+<!-- Primary Meta Tags -->
+<title>{title} | Dietoos Blog</title>
+<meta name="title" content={`${title} | Dietoos Blog`} />
+<meta name="description" content={description} />
+<meta name="author" content={author} />
+
+<!-- Article Meta Tags -->
+<meta name="article:author" content={author} />
+<meta name="article:published_time" content={pubDate.toISOString()} />
+{updatedDate && <meta name="article:modified_time" content={updatedDate.toISOString()} />}
+<meta name="article:section" content={category} />
+{tags.map(tag => <meta name="article:tag" content={tag} />)}
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Dietoos Blog" />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={finalOgImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+{heroImageAlt && <meta property="og:image:alt" content={heroImageAlt} />}
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@dietoosblog" />
+<meta name="twitter:creator" content="@dietoosblog" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={finalOgImage} />
+{heroImageAlt && <meta name="twitter:image:alt" content={heroImageAlt} />}
+
+<!-- Additional SEO Meta Tags -->
+{readingTime && <meta name="reading-time" content={`${readingTime} minutes`} />}
+<meta name="theme-color" content="#ffffff" />
+<meta name="category" content={category} />
+<meta name="coverage" content="Worldwide" />
+<meta name="distribution" content="Global" />
+<meta name="rating" content="General" />
+
+<!-- Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+
+<!-- Performance Hints -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<!-- Google Fonts for Medium-style Blog Typography -->
+<link 
+  href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&family=Fira+Code:wght@400&display=swap" 
+  rel="stylesheet" 
+/>
+
+<!-- RSS Feed -->
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="Dietoos Blog RSS Feed"
+  href={`${Astro.site}rss.xml`}
+/>
+
+<!-- Sitemap -->
+<link rel="sitemap" type="application/xml" href={`${Astro.site}sitemap-index.xml`} /> 

@@ -1,0 +1,258 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buttonVariants } from '@/components/ui/button';
+
+// Get all blog posts
+const allPosts = await getCollection('blog', ({ data }) => {
+  return !data.draft;
+});
+
+// Sort posts by publication date (newest first)
+const sortedPosts = allPosts.sort((a, b) => 
+  new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+
+// Get featured posts
+const featuredPosts = sortedPosts.filter(post => post.data.featured);
+
+// Get recent posts (excluding featured ones)
+const recentPosts = sortedPosts.filter(post => !post.data.featured);
+
+// Get unique categories
+const categories = [...new Set(allPosts.map(post => post.data.category))].sort();
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Calculate reading time estimate
+const getReadingTime = (post: any) => {
+  if (post.data.readingTime) return post.data.readingTime;
+  const wordsPerMinute = 200;
+  const words = post.body.trim().split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+};
+---
+
+<BaseLayout
+  title="Blog - Diet & Healthy Lifestyle Tips"
+  description="Discover expert insights on nutrition, wellness, and healthy living. Evidence-based articles to help you achieve your health goals."
+>
+  <!-- Hero Section -->
+  <section class="py-16 bg-gradient-to-br from-primary/5 to-primary/10">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          Diet & Wellness <span class="text-primary">Blog</span>
+        </h1>
+        <p class="text-xl text-muted-foreground mb-8 leading-relaxed">
+          Discover evidence-based insights on nutrition, mindful eating, and healthy lifestyle choices. 
+          Our expert-curated content helps you make informed decisions for your wellness journey.
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          {categories.map(category => (
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-background border border-border hover:bg-muted transition-colors capitalize">
+              {category}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Posts -->
+  {featuredPosts.length > 0 && (
+    <section class="py-16 border-b border-border">
+      <div class="container max-w-6xl mx-auto px-4">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-3xl font-bold tracking-tight">Featured Articles</h2>
+          <div class="w-12 h-1 bg-primary rounded"></div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredPosts.slice(0, 3).map(post => (
+            <article class="group">
+              <a href={`/blog/${post.slug}`} class="block">
+                {post.data.heroImage && (
+                  <div class="aspect-video mb-4 overflow-hidden rounded-lg bg-muted">
+                    <img
+                      src={post.data.heroImage}
+                      alt={post.data.heroImageAlt || post.data.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                
+                <div class="space-y-3">
+                  <!-- Category -->
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                    {post.data.category}
+                  </span>
+                  
+                  <!-- Title -->
+                  <h3 class="text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
+                    {post.data.title}
+                  </h3>
+                  
+                  <!-- Description -->
+                  <p class="text-muted-foreground line-clamp-2">
+                    {post.data.description}
+                  </p>
+                  
+                  <!-- Meta -->
+                  <div class="flex items-center gap-4 text-sm text-muted-foreground">
+                    <time datetime={post.data.pubDate.toISOString()}>
+                      {formatDate(post.data.pubDate)}
+                    </time>
+                    <span>•</span>
+                    <span>{getReadingTime(post)} min read</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Recent Posts -->
+  <section class="py-16">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold tracking-tight">Latest Articles</h2>
+        <div class="w-12 h-1 bg-primary rounded"></div>
+      </div>
+      
+      <div class="grid gap-8">
+        {recentPosts.map(post => (
+          <article class="group border-b border-border pb-8 last:border-b-0 last:pb-0">
+            <a href={`/blog/${post.slug}`} class="block md:flex gap-8">
+              {post.data.heroImage && (
+                <div class="md:w-80 aspect-video mb-4 md:mb-0 overflow-hidden rounded-lg bg-muted flex-shrink-0">
+                  <img
+                    src={post.data.heroImage}
+                    alt={post.data.heroImageAlt || post.data.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
+              
+              <div class="flex-1 space-y-4">
+                <!-- Category -->
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                  {post.data.category}
+                </span>
+                
+                <!-- Title -->
+                <h3 class="text-2xl font-bold group-hover:text-primary transition-colors">
+                  {post.data.title}
+                </h3>
+                
+                <!-- Description -->
+                <p class="text-muted-foreground text-lg leading-relaxed">
+                  {post.data.description}
+                </p>
+                
+                <!-- Meta -->
+                <div class="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span class="text-primary text-xs font-medium">
+                        {post.data.author.charAt(0)}
+                      </span>
+                    </div>
+                    <span>{post.data.author}</span>
+                  </div>
+                  <span>•</span>
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {formatDate(post.data.pubDate)}
+                  </time>
+                  <span>•</span>
+                  <span>{getReadingTime(post)} min read</span>
+                  
+                  {post.data.tags.length > 0 && (
+                    <>
+                      <span>•</span>
+                      <div class="flex gap-2">
+                        {post.data.tags.slice(0, 3).map((tag: string) => (
+                          <span class="text-xs px-2 py-1 bg-muted rounded">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <!-- Read more -->
+                <div class="pt-2">
+                  <span class={`${buttonVariants({ variant: 'outline', size: 'sm' })} group-hover:bg-primary group-hover:text-primary-foreground transition-colors`}>
+                    Read Article
+                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+      
+      <!-- Load More (placeholder for pagination) -->
+      {recentPosts.length > 10 && (
+        <div class="text-center mt-12">
+          <a 
+            href="/blog/page/2" 
+            class={buttonVariants({ variant: 'outline' })}
+          >
+            Load More Articles
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Newsletter Signup -->
+  <section class="py-16 bg-muted/50">
+    <div class="container max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-4">Stay Updated</h2>
+      <p class="text-muted-foreground mb-8 text-lg">
+        Get the latest articles on nutrition and wellness delivered to your inbox.
+      </p>
+      <div class="max-w-md mx-auto flex gap-2">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          class="flex-1 px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+        <button class={buttonVariants()}>
+          Subscribe
+        </button>
+      </div>
+      <p class="text-xs text-muted-foreground mt-4">
+        No spam, unsubscribe at any time.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style> 

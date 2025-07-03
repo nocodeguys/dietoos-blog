@@ -1,0 +1,236 @@
+---
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import BlogSEO from '@/components/BlogSEO.astro';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props as Props;
+const { Content } = await post.render();
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Calculate estimated reading time if not provided
+const estimateReadingTime = (content: string): number => {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+};
+
+const readingTime = post.data.readingTime || estimateReadingTime(post.body);
+---
+
+<html lang="en" class="scroll-smooth">
+  <head>
+    <BlogSEO
+      title={post.data.seo?.metaTitle || post.data.title}
+      description={post.data.seo?.metaDescription || post.data.description}
+      pubDate={post.data.pubDate}
+      updatedDate={post.data.updatedDate}
+      category={post.data.category}
+      tags={post.data.tags}
+      author={post.data.author}
+      heroImage={post.data.heroImage}
+      heroImageAlt={post.data.heroImageAlt}
+      ogImage={post.data.seo?.ogImage}
+      readingTime={readingTime}
+      slug={post.slug}
+    />
+  </head>
+  <body class="bg-background min-h-screen font-sans antialiased">
+    <div class="relative flex min-h-screen flex-col">
+      <Header />
+      
+      <!-- Skip to content link for accessibility -->
+      <a 
+        href="#main-content" 
+        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
+      >
+        Skip to main content
+      </a>
+
+      <main id="main-content" class="flex-auto">
+        <!-- Breadcrumb Navigation -->
+        <nav class="container py-4" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-2 text-sm text-muted-foreground">
+            <li>
+              <a href="/" class="hover:text-foreground transition-colors">
+                Home
+              </a>
+            </li>
+            <li class="flex items-center">
+              <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <a href="/blog" class="hover:text-foreground transition-colors">
+                Blog
+              </a>
+            </li>
+            <li class="flex items-center">
+              <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-foreground">{post.data.title}</span>
+            </li>
+          </ol>
+        </nav>
+
+        <!-- Article -->
+        <article class="container mx-auto pb-16">
+                      <!-- Article Header -->
+            <header class="mb-8 max-w-4xl mx-auto px-4">
+            <!-- Hero Image -->
+            {post.data.heroImage && (
+              <div class="mb-8 overflow-hidden rounded-lg">
+                <img
+                  src={post.data.heroImage}
+                  alt={post.data.heroImageAlt || post.data.title}
+                  class="w-full h-64 md:h-96 object-cover"
+                  loading="eager"
+                  decoding="async"
+                  width="800"
+                  height="400"
+                />
+              </div>
+            )}
+
+            <!-- Category Badge -->
+            <div class="mb-4">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                {post.data.category}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
+              {post.data.title}
+            </h1>
+
+            <!-- Description -->
+            <p class="text-xl text-muted-foreground mb-6 leading-relaxed">
+              {post.data.description}
+            </p>
+
+            <!-- Article Meta -->
+            <div class="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b border-border pb-6">
+              <!-- Author -->
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span class="text-primary font-medium">
+                    {post.data.author.charAt(0)}
+                  </span>
+                </div>
+                <span>By <span class="text-foreground font-medium">{post.data.author}</span></span>
+              </div>
+
+              <!-- Date -->
+              <time datetime={post.data.pubDate.toISOString()}>
+                {formatDate(post.data.pubDate)}
+              </time>
+
+              <!-- Updated Date -->
+              {post.data.updatedDate && (
+                <span>
+                  • Updated: <time datetime={post.data.updatedDate.toISOString()}>
+                    {formatDate(post.data.updatedDate)}
+                  </time>
+                </span>
+              )}
+
+              <!-- Reading Time -->
+              <span>
+                • {readingTime} min read
+              </span>
+            </div>
+          </header>
+
+          <!-- Article Content -->
+          <div class="prose prose-lg dark:prose-invert">
+            <Content />
+          </div>
+
+          <!-- Article Footer -->
+          <footer class="mt-12 pt-8 border-t border-border max-w-4xl mx-auto px-4">
+            <!-- Tags -->
+            {post.data.tags.length > 0 && (
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-muted-foreground mb-3">Tagged with:</h3>
+                <div class="flex flex-wrap gap-2">
+                  {post.data.tags.map((tag: string) => (
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <!-- Share Buttons -->
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-medium text-muted-foreground">Share this article:</span>
+              <div class="flex gap-2">
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(Astro.url.toString())}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  aria-label="Share on Twitter"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                </a>
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.toString())}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center w-8 h-8 rounded bg-blue-700 text-white hover:bg-blue-800 transition-colors"
+                  aria-label="Share on LinkedIn"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </footer>
+        </article>
+
+        <!-- Related Posts Section (placeholder for future implementation) -->
+        {post.data.relatedPosts && post.data.relatedPosts.length > 0 && (
+          <section class="max-w-4xl mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6">Related Articles</h2>
+            <!-- Related posts will be implemented later -->
+          </section>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style>
+  /* Enhanced focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+  
+  /* Smooth scroll behavior */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+</style> 
