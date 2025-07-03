@@ -2,6 +2,7 @@
 import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
 import BlogSEO from '@/components/BlogSEO.astro';
+import TableOfContents from '@/components/TableOfContents.astro';
 import type { CollectionEntry } from 'astro:content';
 
 export interface Props {
@@ -9,7 +10,7 @@ export interface Props {
 }
 
 const { post } = Astro.props as Props;
-const { Content } = await post.render();
+const { Content, headings } = await post.render();
 
 // Format date for display
 const formatDate = (date: Date) => {
@@ -60,151 +61,114 @@ const readingTime = post.data.readingTime || estimateReadingTime(post.body);
       </a>
 
       <main id="main-content" class="flex-auto">
-        <!-- Breadcrumb Navigation -->
-        <nav class="container py-4" aria-label="Breadcrumb">
-          <ol class="flex items-center space-x-2 text-sm text-muted-foreground">
-            <li>
-              <a href="/" class="hover:text-foreground transition-colors">
-                Home
-              </a>
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <a href="/blog" class="hover:text-foreground transition-colors">
-                Blog
-              </a>
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span class="text-foreground">{post.data.title}</span>
-            </li>
-          </ol>
-        </nav>
+        <section class="py-16">
+          <div class="container">
+            <!-- Breadcrumb Navigation -->
+            <nav class="mb-6" aria-label="Breadcrumb">
+              <ol class="flex items-center space-x-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="/" class="flex items-center hover:text-foreground transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                  </a>
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  <a href="/blog" class="hover:text-foreground transition-colors">
+                    Blog
+                  </a>
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-4 h-4 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="text-foreground">{post.data.title}</span>
+                </li>
+              </ol>
+            </nav>
 
-        <!-- Article -->
-        <article class="container mx-auto pb-16">
-                      <!-- Article Header -->
-            <header class="mb-8 max-w-4xl mx-auto px-4">
-            <!-- Hero Image -->
-            {post.data.heroImage && (
-              <div class="mb-8 overflow-hidden rounded-lg">
-                <img
-                  src={post.data.heroImage}
-                  alt={post.data.heroImageAlt || post.data.title}
-                  class="w-full h-64 md:h-96 object-cover"
-                  loading="eager"
-                  decoding="async"
-                  width="800"
-                  height="400"
-                />
+            <!-- Article Header -->
+            <header class="mb-8">
+              <!-- Category Badge -->
+              <div class="mb-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                  {post.data.category}
+                </span>
               </div>
-            )}
 
-            <!-- Category Badge -->
-            <div class="mb-4">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
-                {post.data.category}
-              </span>
-            </div>
+              <!-- Title -->
+              <h1 class="mb-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+                {post.data.title}
+              </h1>
 
-            <!-- Title -->
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
-              {post.data.title}
-            </h1>
-
-            <!-- Description -->
-            <p class="text-xl text-muted-foreground mb-6 leading-relaxed">
-              {post.data.description}
-            </p>
-
-            <!-- Article Meta -->
-            <div class="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b border-border pb-6">
-              <!-- Author -->
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span class="text-primary font-medium">
+              <!-- Author Meta -->
+              <div class="flex items-center gap-3 text-sm md:text-base">
+                <div class="h-8 w-8 rounded-full border bg-primary/10 flex items-center justify-center">
+                  <span class="text-primary font-medium text-sm">
                     {post.data.author.charAt(0)}
                   </span>
                 </div>
-                <span>By <span class="text-foreground font-medium">{post.data.author}</span></span>
-              </div>
-
-              <!-- Date -->
-              <time datetime={post.data.pubDate.toISOString()}>
-                {formatDate(post.data.pubDate)}
-              </time>
-
-              <!-- Updated Date -->
-              {post.data.updatedDate && (
                 <span>
-                  • Updated: <time datetime={post.data.updatedDate.toISOString()}>
-                    {formatDate(post.data.updatedDate)}
-                  </time>
+                  <span class="font-medium text-foreground">{post.data.author}</span>
+                  <span class="ml-1 text-muted-foreground">
+                    on {formatDate(post.data.pubDate)}
+                  </span>
                 </span>
-              )}
+              </div>
+            </header>
 
-              <!-- Reading Time -->
-              <span>
-                • {readingTime} min read
-              </span>
-            </div>
-          </header>
+            <!-- Main Grid Layout -->
+            <div class="relative mt-12 grid gap-14 lg:mt-14 lg:grid-cols-12 lg:gap-6">
+              <!-- Main Content -->
+              <div class="order-2 lg:order-none lg:col-span-8">
+                <!-- Hero Image -->
+                {post.data.heroImage && (
+                  <div class="mb-8">
+                    <img
+                      src={post.data.heroImage}
+                      alt={post.data.heroImageAlt || post.data.title}
+                      class="mb-8 mt-0 aspect-video w-full rounded-lg border object-cover"
+                      loading="eager"
+                      decoding="async"
+                      width="800"
+                      height="400"
+                    />
+                    <p class="text-sm text-muted-foreground">
+                      {post.data.description}
+                    </p>
+                  </div>
+                )}
 
-          <!-- Article Content -->
-          <div class="prose prose-lg dark:prose-invert">
-            <Content />
-          </div>
-
-          <!-- Article Footer -->
-          <footer class="mt-12 pt-8 border-t border-border max-w-4xl mx-auto px-4">
-            <!-- Tags -->
-            {post.data.tags.length > 0 && (
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-muted-foreground mb-3">Tagged with:</h3>
-                <div class="flex flex-wrap gap-2">
-                  {post.data.tags.map((tag: string) => (
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
-                      #{tag}
-                    </span>
-                  ))}
+                <!-- Article Content -->
+                <div class="prose prose-lg dark:prose-invert grid-layout">
+                  <Content />
                 </div>
-              </div>
-            )}
 
-            <!-- Share Buttons -->
-            <div class="flex items-center gap-4">
-              <span class="text-sm font-medium text-muted-foreground">Share this article:</span>
-              <div class="flex gap-2">
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(Astro.url.toString())}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  aria-label="Share on Twitter"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                  </svg>
-                </a>
-                <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.toString())}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center justify-center w-8 h-8 rounded bg-blue-700 text-white hover:bg-blue-800 transition-colors"
-                  aria-label="Share on LinkedIn"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                  </svg>
-                </a>
+                <!-- Article Footer -->
+                {post.data.tags.length > 0 && (
+                  <footer class="mt-12 pt-8 border-t border-border">
+                    <div class="mb-6">
+                      <h3 class="text-sm font-medium text-muted-foreground mb-3">Tagged with:</h3>
+                      <div class="flex flex-wrap gap-2">
+                        {post.data.tags.map((tag: string) => (
+                          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </footer>
+                )}
               </div>
+
+              <!-- Sidebar with Table of Contents -->
+              <TableOfContents headings={headings} />
             </div>
-          </footer>
-        </article>
+          </div>
+        </section>
 
         <!-- Related Posts Section (placeholder for future implementation) -->
         {post.data.relatedPosts && post.data.relatedPosts.length > 0 && (

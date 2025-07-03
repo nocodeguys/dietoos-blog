@@ -39,7 +39,7 @@
   --blog-section-margin: 3rem;
 
   /* Layout */
-  --blog-max-content-width: 70%;
+  --blog-max-content-width: 100%;
   --blog-side-padding: 2rem;
 
   /* Code */
@@ -76,6 +76,12 @@
 /* Remove default max-width constraint for our custom layout */
 .prose.max-w-none {
   max-width: var(--blog-max-content-width);
+}
+
+/* Grid layout prose - remove padding since container handles it */
+.prose.grid-layout {
+  padding: 0;
+  max-width: none;
 }
 
 /* Typography Hierarchy */
@@ -311,6 +317,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .prose {
+    --blog-max-content-width: 85%;
     --blog-side-padding: 1rem;
     --blog-font-size-h1: 2rem;
     --blog-font-size-h2: 1.5rem;
@@ -320,6 +327,7 @@
 
 @media (max-width: 480px) {
   .prose {
+    --blog-max-content-width: 95%;
     --blog-side-padding: 0.75rem;
     --blog-font-size-h1: 1.75rem;
     --blog-font-size-h2: 1.375rem;
