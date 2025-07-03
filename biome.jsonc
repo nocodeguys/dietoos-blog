@@ -1,3 +1,4 @@
 {
-  "extends": ["@area44/biome-config/biome"]
+  "extends": ["@area44/biome-config/biome", "ultracite"],
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json"
 }
