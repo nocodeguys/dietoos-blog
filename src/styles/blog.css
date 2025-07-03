@@ -1,0 +1,370 @@
+/* Medium-style Blog Typography Theme */
+
+/* CSS Variables based on the Medium-inspired JSON theme */
+.prose {
+  /* Colors */
+  --blog-text: #333333;
+  --blog-background: #FFFFFF;
+  --blog-link: #1A0DAB;
+  --blog-link-hover: #0F0280;
+  --blog-muted: #666666;
+  --blog-blockquote-border: #E0E0E0;
+  --blog-code-background: #F5F5F5;
+  --blog-code-border: #E1E1E8;
+
+  /* Fonts */
+  --blog-font-body: 'Merriweather', serif;
+  --blog-font-heading: 'Inter', sans-serif;
+  --blog-font-ui: 'Open Sans', sans-serif;
+  --blog-font-mono: 'Fira Code', monospace;
+
+  /* Font Weights */
+  --blog-font-weight-normal: 400;
+  --blog-font-weight-bold: 700;
+
+  /* Font Sizes */
+  --blog-font-size-h1: 2.5rem;     /* ~40px */
+  --blog-font-size-h2: 1.75rem;    /* ~28px */
+  --blog-font-size-h3: 1.25rem;    /* ~20px */
+  --blog-font-size-paragraph: 1rem; /* ~16px */
+  --blog-font-size-small: 0.875rem; /* ~14px */
+
+  /* Line Heights */
+  --blog-line-height-heading: 1.25;
+  --blog-line-height-paragraph: 1.6;
+
+  /* Spacing */
+  --blog-gutter: 1rem;
+  --blog-paragraph-margin: 1.5rem;
+  --blog-section-margin: 3rem;
+
+  /* Layout */
+  --blog-max-content-width: 70%;
+  --blog-side-padding: 2rem;
+
+  /* Code */
+  --blog-code-font-size: 0.95rem;
+  --blog-code-line-height: 1.5;
+  --blog-code-padding: 0.75rem;
+  --blog-code-border-radius: 4px;
+}
+
+/* Dark mode adjustments - integrate with existing design system */
+.dark .prose {
+  --blog-text: hsl(var(--foreground));
+  --blog-background: hsl(var(--background));
+  --blog-link: hsl(var(--primary));
+  --blog-link-hover: hsl(var(--primary) / 0.8);
+  --blog-muted: hsl(var(--muted-foreground));
+  --blog-blockquote-border: hsl(var(--border));
+  --blog-code-background: hsl(var(--muted));
+  --blog-code-border: hsl(var(--border));
+}
+
+/* Base prose container styling */
+.prose {
+  max-width: var(--blog-max-content-width);
+  margin: 0 auto;
+  padding: 0 var(--blog-side-padding);
+  font-family: var(--blog-font-body);
+  font-weight: var(--blog-font-weight-normal);
+  color: var(--blog-text);
+  background-color: var(--blog-background);
+  line-height: var(--blog-line-height-paragraph);
+}
+
+/* Remove default max-width constraint for our custom layout */
+.prose.max-w-none {
+  max-width: var(--blog-max-content-width);
+}
+
+/* Typography Hierarchy */
+
+/* Headings */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: var(--blog-font-heading);
+  font-weight: var(--blog-font-weight-bold);
+  color: var(--blog-text);
+  line-height: var(--blog-line-height-heading);
+  margin-top: var(--blog-section-margin);
+  margin-bottom: var(--blog-gutter);
+}
+
+.prose h1 {
+  font-size: var(--blog-font-size-h1);
+  margin-top: 0;
+  margin-bottom: calc(var(--blog-paragraph-margin) * 1.5);
+}
+
+.prose h1:first-child {
+  margin-top: 0;
+}
+
+.prose h2 {
+  font-size: var(--blog-font-size-h2);
+  margin-top: calc(var(--blog-section-margin) * 1.2);
+  margin-bottom: var(--blog-paragraph-margin);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--blog-blockquote-border);
+}
+
+.prose h3 {
+  font-size: var(--blog-font-size-h3);
+  margin-top: calc(var(--blog-section-margin) * 0.8);
+  margin-bottom: var(--blog-gutter);
+}
+
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-size: var(--blog-font-size-paragraph);
+  margin-top: calc(var(--blog-paragraph-margin) * 1.5);
+  margin-bottom: var(--blog-gutter);
+}
+
+/* Paragraphs */
+.prose p {
+  font-size: var(--blog-font-size-paragraph);
+  line-height: var(--blog-line-height-paragraph);
+  margin-top: 0;
+  margin-bottom: var(--blog-paragraph-margin);
+  color: var(--blog-text);
+}
+
+/* Lead paragraph styling */
+.prose .lead {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: var(--blog-muted);
+  margin-bottom: calc(var(--blog-paragraph-margin) * 1.5);
+}
+
+/* Links */
+.prose a {
+  color: var(--blog-link);
+  text-decoration: underline;
+  text-decoration-color: var(--blog-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+}
+
+.prose a:hover {
+  color: var(--blog-link-hover);
+  text-decoration-color: var(--blog-link-hover);
+}
+
+/* Emphasis */
+.prose strong {
+  font-weight: var(--blog-font-weight-bold);
+  color: var(--blog-text);
+}
+
+.prose em {
+  font-style: italic;
+  color: var(--blog-text);
+}
+
+/* Lists */
+.prose ul,
+.prose ol {
+  margin-top: 0;
+  margin-bottom: var(--blog-paragraph-margin);
+  padding-left: calc(var(--blog-gutter) * 1.5);
+}
+
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: var(--blog-line-height-paragraph);
+}
+
+.prose ul > li {
+  list-style-type: disc;
+}
+
+.prose ol > li {
+  list-style-type: decimal;
+}
+
+.prose li > p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes */
+.prose blockquote {
+  margin: calc(var(--blog-paragraph-margin) * 1.5) 0;
+  padding: 0 var(--blog-gutter);
+  border-left: 4px solid var(--blog-blockquote-border);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: var(--blog-line-height-paragraph);
+  color: var(--blog-muted);
+}
+
+.prose blockquote p {
+  margin: 0;
+}
+
+.prose blockquote p:first-child {
+  margin-top: 0;
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code */
+.prose code {
+  font-family: var(--blog-font-mono);
+  font-size: var(--blog-code-font-size);
+  background-color: var(--blog-code-background);
+  border: 1px solid var(--blog-code-border);
+  border-radius: var(--blog-code-border-radius);
+  padding: 0.125rem 0.25rem;
+  color: var(--blog-text);
+}
+
+.prose pre {
+  font-family: var(--blog-font-mono);
+  font-size: var(--blog-code-font-size);
+  line-height: var(--blog-code-line-height);
+  background-color: var(--blog-code-background);
+  border: 1px solid var(--blog-code-border);
+  border-radius: var(--blog-code-border-radius);
+  padding: var(--blog-code-padding);
+  margin: var(--blog-paragraph-margin) 0;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Tables */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--blog-paragraph-margin) 0;
+  font-size: var(--blog-font-size-small);
+}
+
+.prose thead {
+  background-color: var(--blog-code-background);
+  border-bottom: 1px solid var(--blog-code-border);
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--blog-blockquote-border);
+}
+
+.prose th {
+  font-weight: var(--blog-font-weight-bold);
+  color: var(--blog-text);
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Images */
+.prose img {
+  max-width: 100%;
+  height: auto;
+  margin: var(--blog-paragraph-margin) 0;
+  border-radius: var(--blog-code-border-radius);
+}
+
+.prose figure {
+  margin: calc(var(--blog-paragraph-margin) * 1.5) 0;
+}
+
+.prose figcaption {
+  font-size: var(--blog-font-size-small);
+  color: var(--blog-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Horizontal Rules */
+.prose hr {
+  border: none;
+  height: 1px;
+  background-color: var(--blog-blockquote-border);
+  margin: var(--blog-section-margin) 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .prose {
+    --blog-side-padding: 1rem;
+    --blog-font-size-h1: 2rem;
+    --blog-font-size-h2: 1.5rem;
+    --blog-font-size-h3: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .prose {
+    --blog-side-padding: 0.75rem;
+    --blog-font-size-h1: 1.75rem;
+    --blog-font-size-h2: 1.375rem;
+    --blog-font-size-h3: 1rem;
+    --blog-paragraph-margin: 1.25rem;
+  }
+}
+
+/* Large prose variant adjustments */
+.prose-lg {
+  --blog-font-size-paragraph: 1.125rem;
+  --blog-line-height-paragraph: 1.7;
+  --blog-font-size-h1: 2.75rem;
+  --blog-font-size-h2: 2rem;
+  --blog-font-size-h3: 1.5rem;
+  --blog-paragraph-margin: 1.75rem;
+}
+
+/* Print styles for better readability */
+@media print {
+  .prose {
+    --blog-text: #000000;
+    --blog-background: #FFFFFF;
+    --blog-link: #0000EE;
+    --blog-code-background: #F8F8F8;
+    --blog-blockquote-border: #CCCCCC;
+    
+    font-size: 12pt;
+    line-height: 1.4;
+    max-width: none;
+    padding: 0;
+  }
+  
+  .prose h1 { font-size: 18pt; }
+  .prose h2 { font-size: 16pt; }
+  .prose h3 { font-size: 14pt; }
+  
+  .prose a {
+    color: #000000;
+    text-decoration: underline;
+  }
+  
+  .prose a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 10pt;
+    color: #666666;
+  }
+} 

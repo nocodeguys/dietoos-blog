@@ -1,6 +1,7 @@
 // @ts-check
 
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
@@ -9,8 +10,17 @@ export default defineConfig({
   site: process.env.CI
     ? 'https://astro-shadcn-ui-template.vercel.app'
     : 'http://localhost:4321',
-  integrations: [react()],
+  integrations: [
+    react(),
+    sitemap(),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
+  markdown: {
+    shikiConfig: {
+      theme: 'github-dark',
+      wrap: true
+    }
+  }
 });

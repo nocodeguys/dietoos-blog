@@ -1,41 +1,148 @@
 ---
+import { getCollection } from 'astro:content';
 import { buttonVariants } from '@/components/ui/button';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// Get featured and recent blog posts
+const allPosts = await getCollection('blog', ({ data }) => {
+  return !data.draft;
+});
+
+const sortedPosts = allPosts.sort(
+  (a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+
+const featuredPosts = sortedPosts.filter(post => post.data.featured).slice(0, 3);
+const recentPosts = sortedPosts.slice(0, 3);
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 ---
 
 <BaseLayout
-  title="Dietoos Blog"
-  description="A blog about diet and healthy lifestyle."
+  title="Dietoos Blog - Evidence-Based Nutrition & Wellness"
+  description="Your trusted source for evidence-based nutrition advice, healthy lifestyle tips, and wellness insights. Transform your health with expert-curated content."
 >
+  <!-- Hero Section -->
   <section class="container grid items-center gap-6 pt-6 pb-8 md:py-10">
     <div class="flex max-w-[980px] flex-col items-start gap-2">
-      <h1
-        class="text-3xl leading-tight font-extrabold tracking-tighter md:text-4xl"
-      >
-        Dietoos Blog <br class="hidden sm:inline" />
-        built with Astro, Radix UI and Tailwind CSS.
+      <h1 class="text-3xl leading-tight font-extrabold tracking-tighter md:text-4xl lg:text-5xl">
+        Your Journey to <span class="text-primary">Optimal Health</span> <br class="hidden sm:inline" />
+        Starts Here
       </h1>
-      <p class="text-muted-foreground max-w-[700px] text-lg">
-        A blog about diet and healthy lifestyle.
+      <p class="text-muted-foreground max-w-[700px] text-lg md:text-xl leading-relaxed">
+        Discover evidence-based insights on nutrition, mindful eating, and healthy lifestyle choices. 
+        Our expert-curated content helps you make informed decisions for your wellness journey.
       </p>
     </div>
     <div class="flex gap-4">
       <a
-        href="https://ui.shadcn.com"
-        target="_blank"
-        rel="noreferrer"
-        class={buttonVariants()}
+        href="/blog"
+        class={buttonVariants({ size: 'lg' })}
       >
-        Documentation
+        Explore Articles
       </a>
       <a
-        href="https://github.com/nocodeguys/dietoos-blog"
-        target="_blank"
-        rel="noreferrer"
-        class={buttonVariants({ variant: 'outline' })}
+        href="#featured-posts"
+        class={buttonVariants({ variant: 'outline', size: 'lg' })}
       >
-        GitHub
+        Latest Posts
       </a>
+    </div>
+  </section>
+
+  <!-- Featured Posts Section -->
+  {featuredPosts.length > 0 && (
+    <section id="featured-posts" class="py-16 bg-muted/50">
+      <div class="container">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold tracking-tight mb-4">Featured Articles</h2>
+          <p class="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Hand-picked articles covering the most important topics in nutrition and wellness
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredPosts.map(post => (
+            <article class="group bg-background rounded-lg p-6 border border-border hover:shadow-lg transition-shadow">
+              <a href={`/blog/${post.slug}`} class="block">
+                {post.data.heroImage && (
+                  <div class="aspect-video mb-4 overflow-hidden rounded-lg bg-muted">
+                    <img
+                      src={post.data.heroImage}
+                      alt={post.data.heroImageAlt || post.data.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                
+                <div class="space-y-3">
+                  <!-- Category -->
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                    {post.data.category}
+                  </span>
+                  
+                  <!-- Title -->
+                  <h3 class="text-xl font-bold group-hover:text-primary transition-colors">
+                    {post.data.title}
+                  </h3>
+                  
+                  <!-- Description -->
+                  <p class="text-muted-foreground">
+                    {post.data.description}
+                  </p>
+                  
+                  <!-- Meta -->
+                  <div class="flex items-center gap-4 text-sm text-muted-foreground">
+                    <time datetime={post.data.pubDate.toISOString()}>
+                      {formatDate(post.data.pubDate)}
+                    </time>
+                    <span>•</span>
+                    <span>{post.data.readingTime || 5} min read</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+        
+        <div class="text-center mt-12">
+          <a href="/blog" class={buttonVariants({ variant: 'outline' })}>
+            View All Articles
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Newsletter CTA -->
+  <section class="py-16 bg-primary text-primary-foreground">
+    <div class="container text-center">
+      <h2 class="text-3xl font-bold mb-4">Stay Informed</h2>
+      <p class="text-primary-foreground/80 mb-8 text-lg max-w-2xl mx-auto">
+        Get weekly insights on nutrition science and practical wellness tips delivered to your inbox.
+      </p>
+      <div class="max-w-md mx-auto flex gap-2">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          class="flex-1 px-4 py-2 border border-primary-foreground/20 rounded-md bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50 focus:border-transparent"
+        />
+        <button class={buttonVariants({ variant: 'secondary' })}>
+          Subscribe
+        </button>
+      </div>
+      <p class="text-xs text-primary-foreground/60 mt-4">
+        Evidence-based content, no spam, unsubscribe anytime.
+      </p>
     </div>
   </section>
 </BaseLayout>
