@@ -1,0 +1,129 @@
+---
+import { Badge } from "@/components/ui/badge";
+
+type BlogPost = {
+  slug: string;
+  data: {
+    title: string;
+    description: string;
+    category: string;
+    pubDate: Date;
+    heroImage?: string;
+    heroImageAlt?: string;
+    readingTime?: number;
+  };
+};
+
+export interface Props {
+  featuredPost: BlogPost;
+  popularPosts: BlogPost[];
+}
+
+const { featuredPost, popularPosts } = Astro.props as Props;
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+---
+
+<section class="py-12">
+  <div class="container">
+    <!-- <div class="mb-16 text-center">
+      <h1 class="text-5xl font-medium md:text-6xl">
+        Insights and Trends Blog
+      </h1>
+      <p class="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
+        Stay updated with the latest insights, trends, and tips on nutrition, wellness, and healthy lifestyle choices.
+      </p>
+    </div>
+    <div class="mx-auto max-w-7xl"> -->
+      <!-- Featured Post -->
+      <div class="my-16 grid grid-cols-1 items-center gap-8 md:grid-cols-2 lg:gap-16">
+        <div class="aspect-video rounded-lg bg-gray-50 dark:bg-muted overflow-hidden">
+          {featuredPost.data.heroImage ? (
+            <img
+              src={featuredPost.data.heroImage}
+              alt={featuredPost.data.heroImageAlt || featuredPost.data.title}
+              class="aspect-video rounded-lg object-cover w-full h-full"
+            />
+          ) : (
+            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <span class="text-4xl font-bold text-primary/40">
+                {featuredPost.data.title.charAt(0)}
+              </span>
+            </div>
+          )}
+        </div>
+        <div class="flex flex-col items-start gap-4">
+          <Badge variant="secondary" className="shrink">
+            {featuredPost.data.category}
+          </Badge>
+          <h2 class="text-2xl font-semibold text-balance md:max-w-lg lg:text-3xl">
+            <a href={`/blog/${featuredPost.slug}`} class="hover:text-primary transition-colors">
+              {featuredPost.data.title}
+            </a>
+          </h2>
+          <p class="text-muted-foreground md:max-w-lg">
+            {featuredPost.data.description}
+          </p>
+          <div class="flex items-center gap-4 text-sm text-muted-foreground">
+            <time datetime={featuredPost.data.pubDate.toISOString()}>
+              {formatDate(featuredPost.data.pubDate)}
+            </time>
+            <span>•</span>
+            <span>{featuredPost.data.readingTime || 5} min read</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Popular Posts -->
+      <p class="text-2xl font-medium md:text-3xl">Popular Posts</p>
+      <div class="mt-8 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-6">
+        {popularPosts.map((post) => (
+          <div class="flex flex-col items-start gap-4">
+            <a href={`/blog/${post.slug}`} class="block w-full">
+              <div class="aspect-video rounded-lg bg-gray-50 dark:bg-muted overflow-hidden">
+                {post.data.heroImage ? (
+                  <img
+                    src={post.data.heroImage}
+                    alt={post.data.heroImageAlt || post.data.title}
+                    class="aspect-video rounded-lg object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                    <span class="text-2xl font-bold text-primary/40">
+                      {post.data.title.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </a>
+            <Badge variant="secondary" className="shrink">
+              {post.data.category}
+            </Badge>
+            <h3 class="text-xl font-semibold text-balance md:max-w-md">
+              <a href={`/blog/${post.slug}`} class="hover:text-primary transition-colors">
+                {post.data.title}
+              </a>
+            </h3>
+            <p class="text-muted-foreground md:max-w-md">
+              {post.data.description}
+            </p>
+            <div class="flex items-center gap-4 text-sm text-muted-foreground">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {formatDate(post.data.pubDate)}
+              </time>
+              <span>•</span>
+              <span>{post.data.readingTime || 5} min read</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
