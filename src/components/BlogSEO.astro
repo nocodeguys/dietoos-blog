@@ -34,7 +34,7 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(`/blog/${slug}`, Astro.site);
-const defaultOgImage = new URL('og-image.png', Astro.site);
+const defaultOgImage = new URL('og-diet.png', Astro.site);
 const finalOgImage = ogImage ? new URL(ogImage, Astro.site) : (heroImage ? new URL(heroImage, Astro.site) : defaultOgImage);
 
 // Structured Data for Blog Post
@@ -55,7 +55,7 @@ const structuredData = {
     url: (Astro.site || 'https://localhost:4321').toString(),
     logo: {
       "@type": "ImageObject",
-      url: new URL('og-image.png', Astro.site).toString()
+      url: new URL('og-diet.png', Astro.site).toString()
     }
   },
   datePublished: pubDate.toISOString(),
@@ -118,8 +118,9 @@ const breadcrumbStructuredData = {
 <link rel="canonical" href={canonicalURL} />
 
 <!-- Favicon and Icons -->
-<link rel="shortcut icon" type="image/svg+xml" href={`${Astro.site}favicon.svg`} />
-<link rel="apple-touch-icon" sizes="180x180" href={`${Astro.site}apple-touch-icon.png`} />
+<link rel="icon" type="image/x-icon" href={`${Astro.site}favicon.ico`} />
+<link rel="icon" type="image/svg+xml" href={`${Astro.site}favicon.svg`} />
+<link rel="apple-touch-icon" href={`${Astro.site}favicon.ico`} />
 
 <!-- Primary Meta Tags -->
 <title>{title} | Dietoos Blog</title>
