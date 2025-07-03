@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import { buttonVariants } from '@/components/ui/button';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Hero26 } from '@/components/hero26';
 
 // Get featured and recent blog posts
 const allPosts = await getCollection('blog', ({ data }) => {
@@ -30,32 +31,7 @@ const formatDate = (date: Date) => {
   description="Your trusted source for evidence-based nutrition advice, healthy lifestyle tips, and wellness insights. Transform your health with expert-curated content."
 >
   <!-- Hero Section -->
-  <section class="container grid items-center gap-6 pt-6 pb-8 md:py-10">
-    <div class="flex max-w-[980px] flex-col items-start gap-2">
-      <h1 class="text-3xl leading-tight font-extrabold tracking-tighter md:text-4xl lg:text-5xl">
-        Your Journey to <span class="text-primary">Optimal Health</span> <br class="hidden sm:inline" />
-        Starts Here
-      </h1>
-      <p class="text-muted-foreground max-w-[700px] text-lg md:text-xl leading-relaxed">
-        Discover evidence-based insights on nutrition, mindful eating, and healthy lifestyle choices. 
-        Our expert-curated content helps you make informed decisions for your wellness journey.
-      </p>
-    </div>
-    <div class="flex gap-4">
-      <a
-        href="/blog"
-        class={buttonVariants({ size: 'lg' })}
-      >
-        Explore Articles
-      </a>
-      <a
-        href="#featured-posts"
-        class={buttonVariants({ variant: 'outline', size: 'lg' })}
-      >
-        Latest Posts
-      </a>
-    </div>
-  </section>
+  <Hero26 client:load />
 
   <!-- Featured Posts Section -->
   {featuredPosts.length > 0 && (
