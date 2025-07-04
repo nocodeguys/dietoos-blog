@@ -19,7 +19,7 @@ const Hero26 = () => {
             className="mx-auto mb-3 inline-flex items-center gap-3 rounded-full border px-2 py-1 text-sm"
           >
             <Badge className="rounded-full">NEW</Badge>
-            Latest Evidence-Based Articles
+            Jak prowadzić gabinet dietetyka na autopilocie
             <span className="flex size-7 items-center justify-center rounded-full bg-muted">
               <ArrowRight className="w-4" />
             </span>
@@ -43,13 +43,7 @@ const Hero26 = () => {
           <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" asChild>
               <a href="/blog">
-                Explore Articles
-                <MoveRight className="ml-2" strokeWidth={1} />
-              </a>
-            </Button>
-            <Button size="lg" variant="ghost" asChild>
-              <a href="#featured-posts">
-                Latest Posts
+                Zobacz artykuły
                 <MoveRight className="ml-2" strokeWidth={1} />
               </a>
             </Button>
