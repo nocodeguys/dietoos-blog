@@ -1,22 +1,16 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
+import { strapiClient } from '@/lib/strapi';
 import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
-  const blog = await getCollection('blog', ({ data }) => {
-    return !data.draft;
-  });
-
-  const sortedPosts = blog.sort(
-    (a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
-  );
+  const blog = await strapiClient.getBlogPosts();
 
   return rss({
     title: 'Dietoos Blog',
     description: 'Evidence-based insights on nutrition, wellness, and healthy living. Expert-curated content to help you make informed decisions for your wellness journey.',
     site: context.site || 'https://localhost:4321',
     
-    items: sortedPosts.map((post) => ({
+    items: blog.map((post) => ({
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.pubDate,
@@ -32,7 +26,7 @@ export async function GET(context: APIContext) {
           <a href="${context.site || 'https://localhost:4321'}/blog/${post.slug}/">Read the full article</a>
         ]]></content:encoded>
         <dc:creator>${post.data.author}</dc:creator>
-        ${post.data.heroImage ? `<media:content url="${context.site || 'https://localhost:4321'}${post.data.heroImage}" type="image/jpeg" />` : ''}
+        ${post.data.heroImage ? `<media:content url="${post.data.heroImage}" type="image/jpeg" />` : ''}
         <guid isPermaLink="true">${context.site || 'https://localhost:4321'}/blog/${post.slug}/</guid>
       `.trim(),
     })),

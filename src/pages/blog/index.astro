@@ -1,26 +1,19 @@
 ---
-import { getCollection } from 'astro:content';
+import { simpleStrapiClient } from '@/lib/strapi-simple';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buttonVariants } from '@/components/ui/button';
 
-// Get all blog posts
-const allPosts = await getCollection('blog', ({ data }) => {
-  return !data.draft;
-});
-
-// Sort posts by publication date (newest first)
-const sortedPosts = allPosts.sort((a, b) => 
-  new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
-);
+// Get all blog posts from Strapi
+const allPosts = await simpleStrapiClient.getBlogPosts();
 
 // Get featured posts
-const featuredPosts = sortedPosts.filter(post => post.data.featured);
+const featuredPosts = allPosts.filter(post => post.data.featured);
 
 // Get recent posts (excluding featured ones)
-const recentPosts = sortedPosts.filter(post => !post.data.featured);
+const recentPosts = allPosts.filter(post => !post.data.featured);
 
 // Get unique categories
-const categories = [...new Set(allPosts.map(post => post.data.category))].sort();
+const categories = await simpleStrapiClient.getCategories();
 
 // Format date for display
 const formatDate = (date: Date) => {
@@ -199,28 +192,19 @@ const getReadingTime = (post: any) => {
                 <div class="pt-2">
                   <span class={`${buttonVariants({ variant: 'outline', size: 'sm' })} group-hover:bg-primary group-hover:text-primary-foreground transition-colors`}>
                     Read Article
-                    <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                    </svg>
                   </span>
                 </div>
               </div>
             </a>
           </article>
         ))}
+        
+        {recentPosts.length === 0 && featuredPosts.length === 0 && (
+          <div class="text-center py-12">
+            <p class="text-muted-foreground">No blog posts found. Check back soon!</p>
+          </div>
+        )}
       </div>
-      
-      <!-- Load More (placeholder for pagination) -->
-      {recentPosts.length > 10 && (
-        <div class="text-center mt-12">
-          <a 
-            href="/blog/page/2" 
-            class={buttonVariants({ variant: 'outline' })}
-          >
-            Load More Articles
-          </a>
-        </div>
-      )}
     </div>
   </section>
 

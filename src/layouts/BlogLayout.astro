@@ -4,13 +4,34 @@ import Header from '@/components/Header.astro';
 import BlogSEO from '@/components/BlogSEO.astro';
 import TableOfContents from '@/components/TableOfContents.astro';
 import type { CollectionEntry } from 'astro:content';
+import type { ProcessedBlogPost } from '@/types/strapi';
 
 export interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<'blog'> | ProcessedBlogPost;
 }
 
 const { post } = Astro.props as Props;
-const { Content, headings } = await post.render();
+
+// Helper function to check if it's a Strapi post
+const isStrapiPost = (post: any): post is ProcessedBlogPost => {
+  return post.id !== undefined && typeof post.id === 'number';
+};
+
+let Content: any;
+let headings: any[] = [];
+
+// Handle content rendering based on post type
+if (isStrapiPost(post)) {
+  // For Strapi posts, get the processed content and headings
+  const renderResult = await post.render();
+  Content = renderResult.Content;
+  headings = renderResult.headings || [];
+} else {
+  // For Astro collection posts
+  const renderResult = await post.render();
+  Content = renderResult.Content;
+  headings = renderResult.headings;
+}
 
 // Format date for display
 const formatDate = (date: Date) => {
@@ -104,20 +125,26 @@ const readingTime = post.data.readingTime || estimateReadingTime(post.body);
                 {post.data.title}
               </h1>
 
-              <!-- Author Meta -->
-              <div class="flex items-center gap-3 text-sm md:text-base">
-                <div class="h-8 w-8 rounded-full border bg-primary/10 flex items-center justify-center">
-                  <span class="text-primary font-medium text-sm">
-                    {post.data.author.charAt(0)}
-                  </span>
-                </div>
-                <span>
+              <!-- Article Meta -->
+              <div class="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-8 w-8 rounded-full border bg-primary/10 flex items-center justify-center">
+                    <span class="text-primary font-medium text-sm">
+                      {post.data.author.charAt(0)}
+                    </span>
+                  </div>
                   <span class="font-medium text-foreground">{post.data.author}</span>
-                  <span class="ml-1 text-muted-foreground">
-                    on {formatDate(post.data.pubDate)}
-                  </span>
-                </span>
+                </div>
+                <time datetime={post.data.pubDate.toISOString()}>
+                  {formatDate(post.data.pubDate)}
+                </time>
+                <span>{readingTime} min read</span>
               </div>
+
+              <!-- Description -->
+              <p class="text-lg text-muted-foreground leading-relaxed">
+                {post.data.description}
+              </p>
             </header>
 
             <!-- Main Grid Layout -->
@@ -130,25 +157,26 @@ const readingTime = post.data.readingTime || estimateReadingTime(post.body);
                     <img
                       src={post.data.heroImage}
                       alt={post.data.heroImageAlt || post.data.title}
-                      class="mb-8 mt-0 aspect-video w-full rounded-lg border object-cover"
+                      class="mb-4 mt-0 aspect-video w-full rounded-lg border object-cover"
                       loading="eager"
                       decoding="async"
                       width="800"
                       height="400"
                     />
-                    <p class="text-sm text-muted-foreground">
-                      {post.data.description}
-                    </p>
                   </div>
                 )}
 
                 <!-- Article Content -->
-                <div class="prose prose-lg dark:prose-invert grid-layout">
-                  <Content />
-                </div>
+                <article class="prose prose-lg dark:prose-invert max-w-none">
+                  {isStrapiPost(post) ? (
+                    <div set:html={post.body} />
+                  ) : (
+                    <Content />
+                  )}
+                </article>
 
                 <!-- Article Footer -->
-                {post.data.tags.length > 0 && (
+                {post.data.tags && post.data.tags.length > 0 && (
                   <footer class="mt-12 pt-8 border-t border-border">
                     <div class="mb-6">
                       <h3 class="text-sm font-medium text-muted-foreground mb-3">Tagged with:</h3>
@@ -165,16 +193,23 @@ const readingTime = post.data.readingTime || estimateReadingTime(post.body);
               </div>
 
               <!-- Sidebar with Table of Contents -->
-              <TableOfContents headings={headings} />
+              {headings.length > 0 && (
+                <TableOfContents headings={headings} />
+              )}
             </div>
           </div>
         </section>
 
         <!-- Related Posts Section (placeholder for future implementation) -->
         {post.data.relatedPosts && post.data.relatedPosts.length > 0 && (
-          <section class="max-w-4xl mx-auto px-4 py-8">
-            <h2 class="text-2xl font-bold mb-6">Related Articles</h2>
-            <!-- Related posts will be implemented later -->
+          <section class="bg-muted/50 py-16">
+            <div class="container max-w-4xl mx-auto">
+              <h2 class="text-2xl font-bold mb-8 text-center">Related Articles</h2>
+              <p class="text-center text-muted-foreground">
+                Related posts functionality will be implemented soon.
+              </p>
+              <!-- Related posts will be implemented later -->
+            </div>
           </section>
         )}
       </main>
@@ -196,5 +231,50 @@ const readingTime = post.data.readingTime || estimateReadingTime(post.body);
     html {
       scroll-behavior: smooth;
     }
+  }
+
+  /* Ensure proper prose styling for Strapi content */
+  .prose {
+    color: hsl(var(--foreground));
+  }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+  
+  .prose a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
+  
+  .prose a:hover {
+    text-decoration: none;
+  }
+  
+  .prose blockquote {
+    border-left: 4px solid hsl(var(--primary));
+    padding-left: 1rem;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .prose code {
+    background-color: hsl(var(--muted));
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+  
+  .prose pre {
+    background-color: hsl(var(--muted));
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+  
+  .prose pre code {
+    background-color: transparent;
+    padding: 0;
   }
 </style> 

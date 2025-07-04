@@ -1,19 +1,25 @@
 ---
-import { getCollection } from 'astro:content';
+import { simpleStrapiClient } from '@/lib/strapi-simple';
 import BlogLayout from '@/layouts/BlogLayout.astro';
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog', ({ data }) => {
-    return !data.draft;
-  });
+  // Get all blog posts from Strapi for static generation
+  const posts = await simpleStrapiClient.getBlogPosts();
   
-  return blogEntries.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry },
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
   }));
 }
 
-const { entry } = Astro.props;
+// Get the post data from props
+const { post } = Astro.props;
+
+if (!post) {
+  return Astro.redirect('/404');
+}
 ---
 
-<BlogLayout post={entry} /> 
+<BlogLayout post={post}>
+  <Fragment set:html={post.body} />
+</BlogLayout> 
