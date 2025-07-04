@@ -1,9 +1,9 @@
 import rss from '@astrojs/rss';
-import { strapiClient } from '@/lib/strapi';
+import { simpleStrapiClient } from '@/lib/strapi-simple';
 import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
-  const blog = await strapiClient.getBlogPosts();
+  const blog = await simpleStrapiClient.getBlogPosts();
 
   return rss({
     title: 'Dietoos Blog',
